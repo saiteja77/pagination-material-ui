@@ -10,7 +10,13 @@ import { data as Data } from "./data";
 import { Typography, Menu, MenuItem } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import ArrowDropDownRoundedIcon from "@material-ui/icons/ArrowDropDownRounded";
-// import Axios from 'axios'
+import Axios from 'axios'
+
+const props = {
+  url: "url",
+  size: 10,
+  pageNumber: 1
+};
 
 const useStyles = makeStyles(theme => ({
   perPage: {
@@ -22,13 +28,13 @@ const useStyles = makeStyles(theme => ({
     minWidth: 40
   }
 }));
+
 export default function Pagination() {
   const classes = useStyles();
 
-  const prop = "url";
-  const [size, setSize] = React.useState(10);
-  const [current, setCurrent] = React.useState(31512);
-  const [url, setUrl] = React.useState(prop);
+  const [size, setSize] = React.useState(props.size);
+  const [current, setCurrent] = React.useState(props.pageNumber);
+  const [url, setUrl] = React.useState(props.url);
   const [data, setData] = React.useState(Data);
   const [totalElements, setTotalElements] = React.useState(0);
   const [totalPages, setTotalPages] = React.useState(0);
@@ -44,16 +50,36 @@ export default function Pagination() {
     setAnchorEl(null);
   };
 
+  const handleCurrentPage = value => event => {
+    setCurrent(value);
+  };
+
+  const handlePrevious = event => {
+    if (current - 2 > 0) {
+      setCurrent(current - 2);
+    }
+  };
+
+  const handleNext = event => {
+    if (current + 2 < totalPages) {
+      setCurrent(current + 2);
+    }
+  };
+
   function getTwoPageNumbers(value) {
     switch (value) {
       case "previous":
         if (current - 2 > 0) {
           const p = [current - 2, current - 1];
           return p.map(num => {
-            return <Button>{num}</Button>;
+            return <Button onClick={handleCurrentPage(num)}>{num}</Button>;
           });
         } else if (current - 1 > 0) {
-          return <Button>{current - 1}</Button>;
+          return (
+            <Button onClick={handleCurrentPage(current - 1)}>
+              {current - 1}
+            </Button>
+          );
         } else {
           return null;
         }
@@ -61,10 +87,14 @@ export default function Pagination() {
         if (current + 2 < totalPages) {
           const p = [current + 1, current + 2];
           return p.map(num => {
-            return <Button>{num}</Button>;
+            return <Button onClick={handleCurrentPage(num)}>{num}</Button>;
           });
         } else if (current + 1 <= totalPages) {
-          return <Button>{current + 1}</Button>;
+          return (
+            <Button onClick={handleCurrentPage(current + 1)}>
+              {current + 1}
+            </Button>
+          );
         } else {
           return null;
         }
@@ -77,12 +107,12 @@ export default function Pagination() {
     setData(Data);
     setTotalElements(Data.page.totalElements);
     setTotalPages(Data.page.totalPages);
-    // Axios.get(url).then( response => {
-    //   setData(response.data)
-    // }).catch(err => {
-    //   console.log(err)
-    // })
-  }, [url]);
+    Axios.get(`${url}${'?page='}${current}${'&size='}${size}`).then( response => {
+      setData(response.data)
+    }).catch(err => {
+      console.log(err)
+    })
+  }, [url, current, size]);
 
   const submitAction = (...value) => event => {
     Object.entries(value[0]).forEach(element => {
@@ -117,19 +147,21 @@ export default function Pagination() {
             <ButtonGroup size="small">
               <Button onClick={submitAction(Data.links, "first")}>
                 <FirstPageIcon />
+                First
               </Button>
-              <Button>
+              <Button onClick={handlePrevious}>
                 <ChevronLeftIcon />
+                Previous
               </Button>
-              {console.log(size, current, data, totalElements, totalPages)}
-
               {getTwoPageNumbers("previous")}
               <Button disabled>{current}</Button>
               {getTwoPageNumbers("next")}
-              <Button>
+              <Button onClick={handleNext}>
+                Next
                 <ChevronRightIcon />
               </Button>
               <Button onClick={submitAction(Data.links, "last")}>
+                Last
                 <LastPageIcon />
               </Button>
             </ButtonGroup>
