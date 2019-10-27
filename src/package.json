@@ -1,0 +1,14 @@
+{
+  "title": "Material demo",
+  "devDependencies": {
+    "react-scripts": "latest"
+  },
+  "description": "https://github.com/mui-org/material-ui/blob/master/docs/src/pages/components/buttons/GroupedButtons.js",
+  "dependencies": {
+    "@material-ui/core": "latest",
+    "@material-ui/icons": "4.5.1",
+    "axios": "0.19.0",
+    "react": "latest",
+    "react-dom": "latest"
+  }
+}
